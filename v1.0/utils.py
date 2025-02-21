@@ -1,5 +1,4 @@
-# utils.py
-
+import os
 from datetime import datetime
 from langchain.agents import AgentExecutor
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -8,7 +7,7 @@ from langchain.agents.output_parsers.openai_tools import OpenAIToolsAgentOutputP
 from langchain.memory import ConversationBufferMemory
 from langchain.tools import tool
 from langchain_openai import ChatOpenAI
-import os
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -87,7 +86,14 @@ def obtener_calendario(persona: int):
     eventos_persona = next((c["eventos"] for c in calendarios if c["persona"] == persona), None)
     if not eventos_persona:
         return "No hay eventos para esta persona"
-    return [e for e in eventos if e["id"] in eventos_persona]
+    ahora = datetime.now()
+    eventos_retorno = []
+    for e in eventos:
+        if e["id"] in eventos_persona:
+            fecha_evento = datetime.strptime(f"{e['fecha']} {e['hora']}", "%Y-%m-%d %H:%M")
+            if fecha_evento >= ahora:
+                eventos_retorno.append(e)
+    return eventos_retorno
 
 @tool
 def obtener_ids_personas(nombres):
@@ -143,12 +149,7 @@ def agendar_evento(personas_ids, titulo: str, fecha: str, hora: str, lugar: str,
         "lugar": lugar,
         "duracion": duracion
     }
-    eventos.append(nuevo_evento)
-    for persona_id in personas_ids:
-        for c in calendarios:
-            if c["persona"] == persona_id:
-                c["eventos"].append(nuevo_evento["id"])
-    return "Reunión agendada con éxito"
+    crear_evento(personas_ids, nuevo_evento)
 
 @tool
 def agendar_evento_urgente(personas_ids, titulo: str, lugar: str, duracion: str, fecha=""):
@@ -189,15 +190,22 @@ def agendar_evento_urgente(personas_ids, titulo: str, lugar: str, duracion: str,
     # Para agregar automáticamente el evento, descomente la siguiente línea:
     crear_evento(personas_ids, nuevo_evento)
 
-# Configuración del prompt y del agente
+@tool
+def obtener_fecha_actual():
+    """Devuelve la fecha actual en formato ISO 8601 (YYYY-MM-DD)."""
+    return datetime.now().date().isoformat()
 
 prompt = ChatPromptTemplate.from_messages([
     (
         "system",
         "Eres un asistente de agendamiento de reuniones. Para las fechas utiliza el formato ISO 8601 (YYYY-MM-DD). "
         "Introduce las horas en formato 24 horas y las duraciones en formato H:MM, por ejemplo, '0:30' para 30 minutos y '1:30' para una hora y media. "
-        "Cuando se solicite agendar una reunión con varias personas, obtén primero los IDs sin mencionarlo en la respuesta. "
+        "Cuando se solicite agendar una reunión con varias personas, obtén primero los IDs sin mencionarlo en la respuesta. Tras ello, agenda la reunión usando agendar_evento"
         "Antes de crear un evento, solicita la confirmación del usuario."
+        "A la hora de agendar la reunión si no se especifica la fecha, obtén la fecha de hoy y tras ello usa agendar_evento con esta fecha."
+        "En caso de que falta algún dato, como lugar o duración, solicita al usuario que lo proporcione antes de usar agendar_evento."
+        "SOLO usar agendar_evento_urgente si menciona éxplicitamente la palabra urgente."
+        "Si el usuario solicita la disponibilidad de una persona, obtén el calendario de la persona y tras ello muestra los eventos."
     ),
     MessagesPlaceholder(variable_name="chat_history"),
     ("human", "{input}"),
@@ -211,6 +219,7 @@ llm_with_tools = llm.bind_tools([
     obtener_ids_personas,
     agendar_evento,
     agendar_evento_urgente,
+    obtener_fecha_actual,
 ])
 
 agent = (
@@ -233,6 +242,7 @@ agent_executor = AgentExecutor(
         obtener_ids_personas,
         agendar_evento,
         agendar_evento_urgente,
+        obtener_fecha_actual,
     ],
     verbose=True,
     memory=memory
