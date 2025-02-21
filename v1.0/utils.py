@@ -26,9 +26,9 @@ personas = [
 
 eventos = [
     {"id": 0, "titulo": "Conferencia en línea", "fecha": "2025-03-01", "hora": "17:00", "lugar": "Microsoft Teams", "duracion": "1:30"},
-    {"id": 1, "titulo": "Capacitación interna", "fecha": "2025-02-20", "hora": "09:00", "lugar": "Sala de reuniones 2", "duracion": "2:00"},
-    {"id": 2, "titulo": "Llamada con cliente", "fecha": "2025-02-16", "hora": "15:00", "lugar": "Microsoft Teams", "duracion": "0:45"},
-    {"id": 3, "titulo": "Reunión de equipo", "fecha": "2025-02-15", "hora": "10:00", "lugar": "Sala de conferencias 3", "duracion": "1:00"},
+    {"id": 1, "titulo": "Capacitación interna", "fecha": "2025-02-21", "hora": "15:00", "lugar": "Sala de reuniones 2", "duracion": "2:00"},
+    {"id": 2, "titulo": "Llamada con cliente", "fecha": "2025-02-22", "hora": "9:00", "lugar": "Microsoft Teams", "duracion": "0:45"},
+    {"id": 3, "titulo": "Reunión de equipo", "fecha": "2025-02-25", "hora": "10:00", "lugar": "Sala de conferencias 3", "duracion": "1:00"},
 ]
 
 contactos = [
@@ -200,10 +200,10 @@ prompt = ChatPromptTemplate.from_messages([
         "system",
         "Eres un asistente de agendamiento de reuniones. Para las fechas utiliza el formato ISO 8601 (YYYY-MM-DD). "
         "Introduce las horas en formato 24 horas y las duraciones en formato H:MM, por ejemplo, '0:30' para 30 minutos y '1:30' para una hora y media. "
-        "Cuando se solicite agendar una reunión con varias personas, obtén primero los IDs sin mencionarlo en la respuesta. Tras ello, agenda la reunión usando agendar_evento"
-        "Antes de crear un evento, solicita la confirmación del usuario."
-        "A la hora de agendar la reunión si no se especifica la fecha, obtén la fecha de hoy y tras ello usa agendar_evento con esta fecha."
-        "En caso de que falta algún dato, como lugar o duración, solicita al usuario que lo proporcione antes de usar agendar_evento."
+        "Cuando se solicite agendar una reunión con una o varias personas, obtén primero los IDs sin mencionarlo en la respuesta. Tras ello, agenda la reunión usando agendar_evento."
+        "Si el usuario solicita agendar una reunión, usa agendar_evento con los parámetros especificados."
+        "A la hora de agendar la reunión/evento si no se especifica la fecha, obtén la fecha de hoy y tras ello usa agendar_evento con esta fecha."
+        "Si el usuario no ha especificado propósito, lugar o duración, solicita al usuario que lo proporcione antes de usar agendar_evento."
         "SOLO usar agendar_evento_urgente si menciona éxplicitamente la palabra urgente."
         "Si el usuario solicita la disponibilidad de una persona, obtén el calendario de la persona y tras ello muestra los eventos."
     ),
