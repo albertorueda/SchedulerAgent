@@ -105,7 +105,6 @@ def obtener_ids_personas(nombres):
         ids_personas.append(p["id"])
     return ids_personas
 
-@tool
 def crear_evento(personas_ids, nuevo_evento):
     """Crea un evento para la lista de personas especificadas y actualiza sus calendarios."""
     eventos.append(nuevo_evento)
@@ -188,8 +187,7 @@ def agendar_evento_urgente(personas_ids, titulo: str, lugar: str, duracion: str,
         "duracion": duracion
     }
     # Para agregar automáticamente el evento, descomente la siguiente línea:
-    # crear_evento(personas_ids, nuevo_evento)
-    return nuevo_evento
+    crear_evento(personas_ids, nuevo_evento)
 
 # Configuración del prompt y del agente
 
@@ -213,7 +211,6 @@ llm_with_tools = llm.bind_tools([
     obtener_ids_personas,
     agendar_evento,
     agendar_evento_urgente,
-    crear_evento,
 ])
 
 agent = (
@@ -236,7 +233,6 @@ agent_executor = AgentExecutor(
         obtener_ids_personas,
         agendar_evento,
         agendar_evento_urgente,
-        crear_evento,
     ],
     verbose=True,
     memory=memory

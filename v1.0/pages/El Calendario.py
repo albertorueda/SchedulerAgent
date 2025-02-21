@@ -5,7 +5,6 @@ from streamlit_calendar import calendar
 from utils import eventos, convertir_a_minutos, convertir_a_horas
 
 st.title("Calendario Interactivo")
-st.caption("Visualiza y actualiza tus reuniones con una interfaz moderna.")
 
 # Transformar los eventos para incluir el lugar en el título y guardar detalles para el popup.
 calendar_events = []

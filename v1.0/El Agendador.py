@@ -6,12 +6,7 @@ from utils import agent_executor
 from dotenv import load_dotenv
 load_dotenv()
 
-
-# Configuración de la API Key en la barra lateral
-
-
 st.title("Scheduler")
-st.caption("Un chatbot de Streamlit potenciado por el agente de agendamiento")
 
 # Inicializar el estado de la conversación
 if "messages" not in st.session_state:
